@@ -21,48 +21,49 @@ from langchain_openai import ChatOpenAI
 from sqlalchemy.orm import Session
 
 from app.config import settings
-# todo from app.memory.chat_memory import get_memory, save_turn, get_history_messages
-# todo from app.agent.tools import classify_process, lookup_process_db, rag_search
+from app.memory.chat_memory import get_memory, save_turn, get_history_messages
+from app.agent.tools import classify_process, lookup_process_db, rag_search
 from app.schemas.request_schema import ChatRequest, ChatResponse, ProcessInfo
 
 
 #! MUST FROM REQUIRMENTS: PROCESS_LABELS
 PROCESS_LABELS = {
-    "A": "Clarification Handling / Inquiry Resolution",
-    "B": "Product Cancellation",
-    "C": "Incident Escalation",
-    "D": "Customer Data Update",
-    "E": "Internal Complaint Management",
+    "A": "Atencion de aclaraciones",
+    "B": "Cancelacion de productos",
+    "C": "Escalamiento de incidencias",
+    "D": "Actualizacion de datos del cliente",
+    "E": "Gestion de quejas internas",
 }
 
 SYSTEM_PROMPT_TEMPLATE = """
-You are a professional, empathetic virtual assistant for Banorte, one of Mexico's banks. Your role is to help clients resolve their banking needs efficiently.
+Eres un asistente virtual profesional y empatico para Banorte, uno de los bancos de Mexico. Tu funcion es ayudar a los clientes a resolver sus necesidades bancarias de manera eficiente.
 
 Guidelines:
-- Always respond in the same language the client uses (Spanish or English).
-- Be concise, clear, and respectful.
-- Never invent bank policies — only use the information provided.
-- If you cannot resolve an issue, escalate gracefully.
-- For security-sensitive topics (passwords, full card numbers), never ask for them.
+- Siempre responda en el idioma que usa el cliente (español o inglés).
+- Sea conciso, claro y respetuoso.
+- Nunca invente politicas bancarias; utilice unicamente la informacion proporcionada.
+- Si no puede resolver un problema, escalelo de forma profesional.
+- Nunca solicite información confidencial (contraseñas, numeros completos de tarjeta).
 
-Current detected process: {process_code} — {process_name}
-Responsible team: {team_area_responsible}
-Expected resolution time: {average_time_till_solved}
-Available channels: {atention_channel}
-Priority: {priority_level}
+Codigo de proceso: {process_code}
+Nombre de proceso: {process_name}
+Area responsable: {team_area_responsible}
+Tiempo promedio de resolucion: {average_time_till_solved}
+Canal de atencion: {atention_channel}
+Nivel de criticidad: {priority_level}
 
-Relevant knowledge from the Banorte knowledge base:
+Información relevante de la base de conocimientos de Banorte base:
 ───────────────────────────────────────────────────
 {rag_context}
 ───────────────────────────────────────────────────
 
-Use the above information to answer the client's question accurately.
-If the knowledge base has no relevant information, rely on general banking best practices.
+Utilice la información anterior para responder con precision a la pregunta del cliente.
+Si la base de conocimientos no contiene información relevante, aplique las mejores practicas bancarias generales.
 """.strip()
 
 
 def _build_llm():
-    """Instantiate the LLM based on LLM_PROVIDER setting."""
+    """Create the LLM based on LLM_PROVIDER setting."""
     if settings.LLM_PROVIDER == "ollama":
         return ChatOllama(
             model=settings.LLM_MODEL,
@@ -102,7 +103,7 @@ def run_agent(request: ChatRequest, db: Session) -> ChatResponse:
 
     process_data = lookup_process_db(process_code, db)
     if not process_data:
-        # Graceful degradation — use minimal defaults
+        #! Default edge case scenario
         process_data = {
             "process_id":              0,
             "process_code":            process_code,
