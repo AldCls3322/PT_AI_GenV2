@@ -1,9 +1,15 @@
+"""
+Description of API requests, use Pydantic models
+JSON results only valid.
+"""
+
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, Field
 
+
 class MessagePayload(BaseModel):
-    text: str = Field(..., min_length=1, description="User's message text")
+    text: str = Field(..., min_length=1, description="User's message text") #? extract all parameters
 
 
 class Metadata(BaseModel):
@@ -16,17 +22,14 @@ class Metadata(BaseModel):
         description="ISO-8601 timestamp of the request"
     )
 
+
 class ChatRequest(BaseModel):
     """
-    Root input schema.
-
-    Example
-    -------
     {
-        "conversation_id": "conv-001",
-        "user_id": "usr-42",
-        "message": { "text": "¿Cómo cancelo mi tarjeta?" },
-        "metadata": { "channel": "app", "timestamp": "2024-06-01T10:00:00Z" }
+        "conversation_id": string,
+        "user_id": string,
+        "message": { "text": string },
+        "metadata": { "channel": <string>list, "timestamp": "2024-06-01T10:00:00Z" }
     }
     """
     conversation_id: str = Field(..., description="Unique conversation / session ID")
@@ -46,14 +49,12 @@ class ProcessInfo(BaseModel):
 
 
 class ChatResponse(BaseModel):
-    """
-    Root output schema returned by every /chat call.
-    """
+    """Response of chat request call."""
     conversation_id: str
     user_id: str
     reply: str = Field(..., description="Agent's natural-language response")
     detected_process: Optional[str] = Field(
-        None, description="Process label detected by the agent (A–E)"
+        None, description="Process label detected by the agent (A-E)"
     )
     process_info: Optional[ProcessInfo] = Field(
         None, description="DB metadata about the detected process"

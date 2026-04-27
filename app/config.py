@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     # ── LLM ──────────────────────────────────────────────────────
-    LLM_PROVIDER: str = ""          # ollama openai
+    LLM_PROVIDER: str = "openai"          # ollama openai
     OPENAI_API_KEY: str = ""
     LLM_MODEL: str = "gpt-4o"
     OLLAMA_BASE_URL: str = "http://localhost:11434"
