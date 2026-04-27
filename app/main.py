@@ -1,30 +1,41 @@
+# ── Path bootstrap — MUST be first, before any app.* imports ─────────────────
+import sys
+import os
+
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
+# ─────────────────────────────────────────────────────────────────────────────
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
+# ── Import models BEFORE seed/init so Base.metadata is fully populated ────────
+import app.db.models  # noqa: F401
+from app.api.routes import router
+from app.db.seed import init_db
+from app.rag.loader import ingest_all_documents
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    FastAPI lifespan handler.
-    Code before `yield` runs at startup; code after runs at shutdown.
-    """
     print("\n" + "="*60)
-    print("Banorte Assistant — Starting up")
+    print("  Banorte Assistant - Starting up")
     print("="*60)
 
+    print("\n[Startup] Initializing database...")
+    init_db()
 
-    print("\nRunning RAG ingestion pipeline...")
+    print("\n[Startup] Running RAG ingestion pipeline...")
+    ingest_all_documents()
 
-    print("\nReady. Listening for requests.\n")
-
-    yield  # ← App is running and accepting requests here
-
+    print("\n[Startup] Ready. Listening for requests.\n")
+    yield
     print("\n[Shutdown] Banorte Assistant shutting down.")
 
 
-# App
-
 def create_app() -> FastAPI:
-    app = FastAPI(
+    application = FastAPI(
         title="Banorte Client Assistant API",
         description=(
             "Orchestrator Agent for Banorte bank clients. "
@@ -34,13 +45,13 @@ def create_app() -> FastAPI:
         version="1.0.0",
         lifespan=lifespan,
     )
-    return app
+    application.include_router(router, prefix="/api/v1")
+    return application
 
 
 app = create_app()
 
 
-# Dev runner
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

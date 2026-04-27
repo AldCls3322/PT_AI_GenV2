@@ -1,0 +1,47 @@
+# ── Web framework ─────────────────────────────────────────────
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+
+# ── LangChain ecosystem ───────────────────────────────────────
+# langchain-community 0.3.7 hard cap: SQLAlchemy<2.0.36
+# All langchain-* packages must be from the same 0.3.x generation
+langchain==0.3.7
+langchain-community==0.3.7
+langchain-core==0.3.28
+langchain-text-splitters==0.3.3
+langchain-openai==0.2.9
+langchain-chroma==0.1.4
+langchain-huggingface==0.1.2
+langchain-ollama==0.2.1
+
+# ── Vector store ──────────────────────────────────────────────
+chromadb==0.5.20
+
+# ── Embeddings (free, local, CPU) ─────────────────────────────
+sentence-transformers==3.3.1
+# Install torch separately with CPU-only index to save ~1.5 GB:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch>=2.1.0
+
+# ── LLM provider ──────────────────────────────────────────────
+openai==1.54.0
+
+# ── PDF loading support ───────────────────────────────────────
+pypdf==4.3.1
+
+# ── Database ──────────────────────────────────────────────────
+# MUST be <2.0.36 — langchain-community 0.3.7 hard constraint
+sqlalchemy==2.0.35
+
+# ── Validation & settings ─────────────────────────────────────
+pydantic==2.9.2
+pydantic-settings==2.6.1
+
+# ── Utilities ─────────────────────────────────────────────────
+python-dotenv==1.0.1
+tiktoken==0.8.0
+setuptools>=68.0
+
+# ── HTTP client — MUST be pinned ──────────────────────────────
+# openai==1.54.0 passes 'proxies' to httpx, removed in httpx>=0.28.0
+httpx==0.27.2
