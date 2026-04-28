@@ -1,0 +1,53 @@
+Proceso de Escalamiento de Incidencias (PROCESS C) Banorte Internal
+Knowledge Base — Version 1.0
+
+1.  Definición de Incidente Un incidente se considera cualquier evento
+    que comprometa la seguridad, acceso o integridad de la cuenta del
+    cliente.
+
+Casos incluidos: - Transacciones no autorizadas o sospecha de fraude. -
+Problemas de acceso a la cuenta (bloqueos o credenciales
+comprometidas). - Fallas en cajeros automáticos con deducción de dinero
+sin entrega de efectivo. - Cargos automáticos no autorizados. - Robo de
+identidad o ataques de phishing.
+
+2.  Acciones Inmediatas del Cliente
+
+-   Bloquear la tarjeta inmediatamente desde la app (disponible 24/7).
+-   Llamar a la línea de fraude: 800-226-6783, opción 3.
+-   No compartir códigos OTP, contraseñas ni información sensible.
+
+3.  Registro del Incidente
+
+-   Cada incidente recibe un número de folio único (ejemplo:
+    INC-2024-0001).
+-   Confirmación enviada por SMS y correo electrónico en menos de 15
+    minutos.
+-   Posible crédito provisional dentro de 24 horas en casos aplicables.
+
+4.  Niveles de Escalamiento Nivel 1: Resolución en primer contacto (0–2
+    horas) Nivel 2: Especialista de operaciones (2–4 horas) Nivel 3:
+    Equipo de investigación de fraude (4–24 horas) Nivel 4: Área
+    legal/regulatoria (casos que involucran autoridades)
+
+5.  SLA (Acuerdos de Nivel de Servicio)
+
+-   Incidentes críticos resueltos en menos de 4 horas.
+-   Investigación completa en un máximo de 10 días hábiles.
+
+6.  Canales de Atención
+
+-   Teléfono: 800-226-6783
+-   Sucursal bancaria
+-   Mensajería segura dentro de la app
+
+7.  Integración con Sistema RAG Este documento forma parte del
+    repositorio de conocimiento utilizado por el sistema de IA: Carga →
+    Segmentación → Embeddings → Almacenamiento → Recuperación.
+
+Ejemplo de consulta: “Detecté un cargo no reconocido en mi cuenta, ¿qué
+hago?”
+
+Respuesta esperada: El sistema identifica un incidente, activa el
+proceso de escalamiento y proporciona instrucciones inmediatas junto con
+tiempos de resolución y canales de contacto.

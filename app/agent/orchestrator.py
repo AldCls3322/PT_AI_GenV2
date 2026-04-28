@@ -99,7 +99,7 @@ def run_agent(request: ChatRequest, db: Session) -> ChatResponse:
     user_id         = request.user_id
 
     process_code = classify_process(user_text)
-    print(f"[Orchestrator] 🔍  Detected process: {process_code} — {PROCESS_LABELS[process_code]}")
+    print(f"[Orchestrator] Detected process: {process_code} — {PROCESS_LABELS[process_code]}")
 
     process_data = lookup_process_db(process_code, db)
     if not process_data:
@@ -138,7 +138,7 @@ def run_agent(request: ChatRequest, db: Session) -> ChatResponse:
     llm    = _build_llm()
     result = llm.invoke(messages)
     reply  = result.content.strip()
-    print(f"[Orchestrator] 💬  Reply generated ({len(reply)} chars)")
+    print(f"[Orchestrator] Reply generated ({len(reply)} chars)")
     # memory usage
     save_turn(conversation_id, user_text, reply)
 

@@ -1,0 +1,45 @@
+PROCESO D — ACTUALIZACIÓN DE DATOS DEL CLIENTE
+Banorte – Base de Conocimiento Interna — Versión 1.0
+
+DATOS QUE PUEDEN SER ACTUALIZADOS
+──────────────────────────────────────────────────────
+- Domicilio fiscal y de correspondencia
+- Teléfono (móvil y fijo)
+- Correo electrónico
+- RFC / CURP (requiere documentación de respaldo)
+- Beneficiarios
+
+REQUISITOS SEGÚN TIPO DE DATO
+──────────────────────────────────────────────────────
+1️⃣ **Actualización de domicilio**
+   • Recibo de servicio (luz, agua, gas, teléfono) con una antigüedad máxima de 3 meses **o** contrato de arrendamiento oficial.
+   • Identificación oficial emitida por el gobierno.
+   • Puede realizarse en sucursal o, para cambios menores, a través de la app.
+
+2️⃣ **Actualización de teléfono o correo electrónico**
+   • Verificación de identidad mediante OTP (código de un solo uso) enviado al número o correo actual registrado.
+   • Procedimiento en la app: *Perfil → Datos personales → Información de contacto*.
+
+3️⃣ **Actualización de RFC / CURP**
+   • Documento RFC emitido por el SAT **o** certificado de CURP.
+   • **Debe** gestionarse exclusivamente en sucursal; no es posible hacerlo de forma remota.
+
+4️⃣ **Actualización de beneficiario**
+   • Identificación oficial del nuevo beneficiario.
+   • Trámite **solo en sucursal**.
+   • Si el beneficiario es menor de edad, se requiere documento notarial que acredite la autorización del tutor.
+
+TIEMPO DE PROCESAMIENTO
+──────────────────────────────────────────────────────
+- 1 – 3 días hábiles para la mayoría de las actualizaciones.
+- Hasta 3 días hábiles para cambios de RFC / CURP.
+
+EQUIPO RESPONSABLE
+──────────────────────────────────────────────────────
+- **KYC & Compliance** (Conozca a su Cliente y Cumplimiento).
+
+NIVEL DE PRIORIDAD
+──────────────────────────────────────────────────────
+- **Media**.
+
+--------------------------------------------------------------

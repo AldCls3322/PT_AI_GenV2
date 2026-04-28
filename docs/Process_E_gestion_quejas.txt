@@ -1,0 +1,88 @@
+PROCESO E — GESTIÓN DE QUEJAS INTERNAS
+Banorte – Base de Conocimiento Interna — Versión 1.0
+
+OBJETIVO
+──────────────────────────────────────────────────────
+Brindar al cliente un canal formal y estructurado para presentar quejas
+relacionadas con servicios, productos o cualquier aspecto de la relación
+bancaria que requiera atención interna.
+
+TIPOS DE QUEJAS QUE PUEDEN SER GESTIONADAS
+──────────────────────────────────────────────────────
+- Demoras o errores en transacciones.
+- Problemas con la atención al cliente (presencial, telefónica o digital).
+- Incumplimiento de condiciones contractuales.
+- Rechazo de solicitudes sin justificación clara.
+- Cualquier otro asunto que el cliente considere que afecta su experiencia
+  con Banorte y que no haya sido resuelto mediante los canales habituales.
+
+REQUISITOS PREVIOS
+──────────────────────────────────────────────────────
+1️⃣ **Identificación del cliente**  
+   • Número de cliente o CLABE.  
+   • Documento de identificación oficial (INE, pasaporte, etc.).
+
+2️⃣ **Detalle de la queja**  
+   • Descripción clara y concisa del hecho.  
+   • Fecha y hora aproximada del incidente.  
+   • Evidencias (capturas de pantalla, comprobantes, correos, etc.) en formato PDF o JPG.
+
+3️⃣ **Canal de presentación**  
+   • **App Banorte** → *Perfil → Soporte → Quejas internas*.  
+   • **Portal web** → *Mi cuenta → Soporte → Quejas*.  
+   • **Correo electrónico**: quejas.internas@banorte.com.mx.  
+   • **Teléfono**: 55‑5555‑5555 (opción 3 – Quejas internas).  
+
+PASOS PARA PRESENTAR LA QUEJA (CLIENTE)
+──────────────────────────────────────────────────────
+1️⃣ **Acceder al canal elegido**  
+   - Si usas la app o el portal, ingresa con tu usuario y contraseña.  
+   - Si prefieres el correo, redacta un mensaje con los datos solicitados.  
+   - Si llamas, indica que deseas registrar una queja interna y proporciona
+     tu número de cliente.
+
+2️⃣ **Completar el formulario**  
+   - Selecciona la categoría que mejor describa tu caso.  
+   - Introduce la descripción del problema (máximo 500 caracteres).  
+   - Adjunta los documentos de respaldo (máximo 5 archivos, cada uno ≤ 5 MB).
+
+3️⃣ **Confirmar y enviar**  
+   - Revisa que toda la información sea correcta.  
+   - Pulsa **Enviar** (app/portal) o **Enviar correo** (en caso de email).  
+   - En caso de llamada, el agente registrará la queja y te enviará un número
+     de folio por SMS.
+
+4️⃣ **Recepción del folio de queja**  
+   - El sistema genera automáticamente un **Número de Folio** (ej.: QJ‑2024‑001234).  
+   - Este número es tu referencia para cualquier seguimiento.
+
+5️⃣ **Seguimiento**  
+   - **App/Portal**: sección *Mis quejas* → ingresa el número de folio para ver el estado.  
+   - **Correo**: recibirás notificaciones de avance en la dirección registrada.  
+   - **Teléfono**: puedes consultar el estado indicando tu número de folio.
+
+6️⃣ **Resolución**  
+   - El equipo de **Quejas Internas** (dependencia de Atención al Cliente) revisa la información y, en caso necesario, solicita datos adicionales.  
+   - Tiempo estimado de respuesta: **5 – 10 días hábiles**.  
+   - La respuesta final se envía por el mismo canal de origen (app, portal, correo o SMS).
+
+7️⃣ **Escalamiento (si la respuesta no es satisfactoria)**  
+   - Contacta al **Departamento de Atención a Quejas** al 55‑5555‑5556 (opción 2).  
+   - Proporciona el número de folio y solicita revisión por el **Comité de Calidad**.  
+   - Tiempo máximo de escalamiento: **3 días hábiles** adicionales.
+
+EQUIPO RESPONSABLE
+──────────────────────────────────────────────────────
+- **Departamento de Quejas Internas** (Atención al Cliente).  
+- **Comité de Calidad** (para casos escalados).  
+
+NIVEL DE PRIORIDAD
+──────────────────────────────────────────────────────
+- **Media** (prioridad alta solo en casos de fraude o vulneración de derechos).  
+
+TIEMPO TOTAL DE RESOLUCIÓN
+──────────────────────────────────────────────────────
+- **5 – 10 días hábiles** (sin escalamiento).  
+- **Hasta 13 días hábiles** (incluyendo posible escalamiento).  
+
+--------------------------------------------------------------
