@@ -1,0 +1,47 @@
+# =============================================================================
+# .gitignore — Banorte Assistant
+# =============================================================================
+
+# ── Secretos — NUNCA subir ────────────────────────────────────────────────────
+.env
+# .env.example SÍ se sube (es la plantilla pública sin secretos)
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.mypy_cache/
+
+# ── Entornos virtuales ────────────────────────────────────────────────────────
+rag_pt_ai/
+venv/
+.venv/
+env/
+
+# ── Datos generados en runtime ────────────────────────────────────────────────
+chroma_store/
+banorte.db
+*.db
+*.db-shm
+*.db-wal
+
+# ── Caché de modelos HuggingFace (puede pesar varios GB) ─────────────────────
+.cache/
+
+# ── IDEs ──────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Sistema operativo ─────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db

@@ -1,0 +1,61 @@
+# =============================================================================
+# .dockerignore
+# =============================================================================
+# Excluye archivos del contexto de build de Docker.
+# Reduce el tamaño del contexto y evita copiar datos sensibles o innecesarios.
+# Sigue la misma lógica que .gitignore.
+# =============================================================================
+
+# ── Entorno virtual Python ────────────────────────────────────────────────────
+rag_pt_ai/
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# ── Variables de entorno (NUNCA en la imagen) ─────────────────────────────────
+.env
+# .env.example SÍ se incluye (no tiene secretos)
+
+# ── Datos generados en runtime (se montan como volúmenes) ─────────────────────
+chroma_store/
+banorte.db
+*.db
+*.db-shm
+*.db-wal
+
+# ── Caché de modelos HuggingFace (pesado, se descarga en runtime) ─────────────
+.cache/
+
+# ── Git ───────────────────────────────────────────────────────────────────────
+.git/
+.gitignore
+.gitattributes
+
+# ── Docker (evita recursión) ──────────────────────────────────────────────────
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# ── Documentación y archivos de desarrollo ────────────────────────────────────
+README.md
+*.md
+.editorconfig
+
+# ── IDEs y editores ───────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+tests/
+test_*.py
+*_test.py
+htmlcov/
+.coverage

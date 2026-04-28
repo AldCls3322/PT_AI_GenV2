@@ -1,0 +1,54 @@
+# =============================================================================
+# docker-compose.prod.yml — Override de Producción
+# =============================================================================
+# Extiende docker-compose.yml con configuración específica para producción.
+#
+# Uso:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# Diferencias vs desarrollo:
+#   - No usa .env local — las variables deben venir del entorno del host o secrets
+#   - Imagen pre-construida desde un registry (en lugar de build local)
+#   - Uvicorn con múltiples workers
+#   - Límites de recursos habilitados
+# =============================================================================
+
+services:
+  banorte-api:
+    # En producción se usa una imagen ya publicada en un registry,
+    # no un build local. Cambia por tu registry real.
+    # image: tu-registry.com/banorte-assistant:1.0.0
+
+    # Múltiples workers para mayor throughput
+    # Nota: con múltiples workers la memoria de conversación (en RAM)
+    # no se comparte entre workers. Para producción real usar Redis.
+    command: >
+      python -m uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --workers 4
+      --no-access-log
+
+    environment:
+      # En producción NO se carga .env — las variables vienen del entorno
+      # del host, de un secret manager, o de Kubernetes secrets.
+      APP_ENV: production
+
+    # Límites de recursos en producción
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
+    # No exponer directamente — usar un reverse proxy (nginx, traefik)
+    ports: []
+    expose:
+      - "8000"
