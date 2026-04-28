@@ -63,4 +63,12 @@ class ChatResponse(BaseModel):
         default_factory=list,
         description="Document sources used by the RAG retriever"
     )
+    # ── Memory diagnostic field ───────────────────────────────────────────────
+    # Shows how many prior turns were injected into the LLM prompt.
+    # 0 = new session or server was restarted.
+    # >0 = memory is working correctly.
+    memory_turns_used: int = Field(
+        default=0,
+        description="Number of prior conversation turns injected into the prompt"
+    )
     timestamp: datetime = Field(default_factory=datetime.utcnow)

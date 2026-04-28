@@ -82,3 +82,30 @@ async def list_processes(db: Session = Depends(get_db)):
 )
 async def health():
     return {"status": "ok", "service": "banorte-assistant"}
+
+@router.get(
+    "/memory/{conversation_id}",
+    status_code=status.HTTP_200_OK,
+    summary="Inspect conversation memory (debug)",
+    tags=["Debug"],
+)
+async def get_memory_debug(conversation_id: str):
+    """
+    Returns the current in-memory conversation history for a given session.
+    Useful for verifying that memory is being saved and retrieved correctly.
+    Returns an empty list if the conversation_id is unknown or server restarted.
+    """
+    from app.memory.chat_memory import get_history_messages, get_turn_count
+    messages   = get_history_messages(conversation_id)
+    turn_count = get_turn_count(conversation_id)
+    return {
+        "conversation_id": conversation_id,
+        "turn_count":      turn_count,
+        "messages": [
+            {
+                "role":    msg.__class__.__name__.replace("Message", "").lower(),
+                "content": msg.content[:200] + "..." if len(msg.content) > 200 else msg.content,
+            }
+            for msg in messages
+        ],
+    }

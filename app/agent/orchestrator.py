@@ -4,7 +4,7 @@ from langchain_openai import ChatOpenAI
 from sqlalchemy.orm import Session
 from app.config import settings
 
-from app.memory.chat_memory import get_memory, save_turn, get_history_messages
+from app.memory.chat_memory import save_turn, get_history_messages, get_turn_count
 from app.agent.tools import classify_process, lookup_process_db, rag_search
 from app.schemas.request_schema import ChatRequest, ChatResponse, ProcessInfo
 
@@ -28,12 +28,11 @@ Guidelines:
 - Si no puede resolver un problema, escalelo de forma profesional.
 - Nunca solicite información confidencial (contraseñas, numeros completos de tarjeta).
 
-Codigo de proceso: {process_code}
-Nombre de proceso: {process_name}
-Area responsable: {team_area_responsible}
-Tiempo promedio de resolucion: {average_time_till_solved}
-Canal de atencion: {atention_channel}
-Nivel de criticidad: {priority_level}
+Current detected process: {process_code} — {process_name}
+Responsible team: {team_area_responsible}
+Expected resolution time: {average_time_till_solved}
+Available channels: {atention_channel}
+Priority: {priority_level}
 
 Información relevante de la base de conocimientos de Banorte base:
 ───────────────────────────────────────────────────
@@ -57,7 +56,7 @@ def _build_llm():
         model=settings.LLM_MODEL,
         api_key=settings.OPENAI_API_KEY,
         temperature=0.3,
-        max_tokens=800,
+        max_tokens=1800,
     )
 
 
@@ -98,6 +97,7 @@ def run_agent(request: ChatRequest, db: Session) -> ChatResponse:
 
     #conversation history
     history = get_history_messages(conversation_id)
+    prior_turns    = len(history) // 2
     messages.extend(history)
     # Append the current user turn
     messages.append(HumanMessage(content=user_text))
