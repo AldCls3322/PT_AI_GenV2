@@ -1,15 +1,4 @@
-"""
-tools for the orchestrator.
-classify_process() - detect which of the 5 processes (A-E) applies
-lookup_process_db() - fetch process metadata from SQL
-rag_search() - retrieve knowledge from ChromaDB
-
-These are plain functions so the orchestrator stays in full control
-of when/how they're invoked.
-"""
-
 from sqlalchemy.orm import Session
-
 from app.rag.retriever import retrieve_as_context
 from app.db.models import FunctionalProcess
 
@@ -43,11 +32,6 @@ _PROCESS_KEYWORDS: list[tuple[str, list[str]]] = [
 
 
 def classify_process(text: str) -> str:
-    """
-    keyword classifier.
-    Returns the process code ("A"-"E")
-    Fallback to "A" (inquiry)
-    """
     #! todo: replace with an LLM zero-shot classification call.
     lower = text.lower()
     for code, keywords in _PROCESS_KEYWORDS:
@@ -58,27 +42,15 @@ def classify_process(text: str) -> str:
 
 # DB Lookup
 def lookup_process_db(process_code: str, db: Session) -> dict | None:
-    """
-    Get process metadata from the functional_process table.
-
-    process_code : "A"-"E"
-    db : SQLAlchemy session
-
-    Dict or None
-    """
+    # process_code : "A"-"E"
+    # db : SQLAlchemy session
     row = db.query(FunctionalProcess).filter_by(process_code=process_code).first()
+    # Get process metadata from the functional_process table.
     return row.to_dict() if row else None
 
 
 # RAG
 def rag_search(query: str, process_code: str | None = None) -> tuple[str, list[str]]:
-    """
-    Retrieve relevant context from ChromaDB for the given query.
-
-    query : User's prompt question.
-    process_code : narrows results to documents tagged with this process.
-
-    tuple (context_string, sources_list)
-    """
     context, sources = retrieve_as_context(query, process_code)
+    #(context_string, sources_list)
     return context, sources

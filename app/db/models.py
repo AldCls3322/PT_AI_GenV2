@@ -1,9 +1,3 @@
-"""
-ORM table definitions.
-
-functional_process - The 5 bank processes (A-E), seeded once.
-rag_document_registry - Audit log: every RAG ingestion is recorded here.
-"""
 
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Text
@@ -11,10 +5,7 @@ from app.db.database import Base
 
 
 class FunctionalProcess(Base):
-    """
-    Represents a business process supported by the Banorte assistant.
-    Corresponds to processes A–E defined in the requirements.
-    """
+
     __tablename__ = "functional_process"
 
     process_id            = Column(Integer, primary_key=True, index=True)
@@ -38,12 +29,7 @@ class FunctionalProcess(Base):
 
 
 class RagDocumentRegistry(Base):
-    """
-    Audit log for every document ingested into the RAG pipeline.
-    Allows traceability: which documents are indexed, when, and for which process.
-    """
     __tablename__ = "rag_document_registry"
-
     id              = Column(Integer, primary_key=True, index=True)
     process_code    = Column(String(2), nullable=False)        # "A"–"E"
     document_name   = Column(String(255), nullable=False)

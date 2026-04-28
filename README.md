@@ -153,6 +153,20 @@ POST http://localhost:8000/api/v1/ingest
 
 ---
 
+## routes.py
+
+See for detail on PAI usage for requests.
+
+
+REST API
+
+POST /chat — Main orchestration endpoint
+POST /ingest — Trigger document ingestion into ChromaDB
+GET  /processes — List all functional processes from DB
+GET  /health — Health check
+
+---
+
 ## RAG
 
 El sistema RAG (Retrieval-Augmented Generation) enriquece las respuestas.

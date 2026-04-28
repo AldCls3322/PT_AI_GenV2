@@ -1,16 +1,13 @@
-# ── Path bootstrap — MUST be first, before any app.* imports ─────────────────
+# Path bootstrap
 import sys
 import os
 
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
-# ─────────────────────────────────────────────────────────────────────────────
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-
-# ── Import models BEFORE seed/init so Base.metadata is fully populated ────────
 import app.db.models  # noqa: F401
 from app.api.routes import router
 from app.db.seed import init_db

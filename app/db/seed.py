@@ -1,10 +1,3 @@
-"""
-db/seed.py
-──────────
-Populates the functional_process table with the 5 processes (A–E).
-Run once at startup via init_db() or manually:  python -m app.db.seed
-"""
-
 from app.db.database import engine, SessionLocal, Base
 from app.db.models import FunctionalProcess, RagDocumentRegistry
 
@@ -13,7 +6,7 @@ PROCESSES = [
     {
         "process_code":            "A",
         "process_name":            "Clarification Handling / Inquiry Resolution",
-        "team_area_responsible":   "Customer Service – Tier 1",
+        "team_area_responsible":   "Customer Service - Tier 1",
         "average_time_till_solved": "2h",
         "atention_channel":        "app, web, whatsapp, phone",
         "priority_level":          "medium",
@@ -29,7 +22,7 @@ PROCESSES = [
     {
         "process_code":            "C",
         "process_name":            "Incident Escalation",
-        "team_area_responsible":   "Operations – Escalation Desk",
+        "team_area_responsible":   "Operations - Escalation Desk",
         "average_time_till_solved": "4h",
         "atention_channel":        "phone, web, branch",
         "priority_level":          "critical",
@@ -54,13 +47,9 @@ PROCESSES = [
 
 
 def init_db():
-    """
-    Creates all tables and seeds reference data.
-    Safe to call multiple times — skips existing rows.
-    """
-    print("[seed] Creating tables...")
+    print("Creating db")
     Base.metadata.create_all(bind=engine)
-    print("[seed] Tables created (or already existed).")
+    print("Tables created")
  
     db = SessionLocal()
     try:
@@ -75,13 +64,12 @@ def init_db():
  
         db.commit()
         if seeded:
-            print(f"[seed] functional_process: {seeded} row(s) inserted.")
+            print(f"functional_process: {seeded} row(s) inserted.")
         else:
-            print("[seed] functional_process: already seeded, skipped.")
+            print(f"functional_process: already seeded, skipped.")
     except Exception as e:
         db.rollback()
-        print(f"[seed] ERROR seeding DB: {e}")
-        raise
+        print(f"ERROR seeding DB: {e}")
     finally:
         db.close()
 

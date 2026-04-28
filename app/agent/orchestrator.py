@@ -1,26 +1,9 @@
-"""
-Main Banorte Orchestrator Agent
-
-Must
-Accept a user message and conversation_id.
-Classify the intent into one of 5 processesA,B,C,D,E.
-Get process metadata from the db.
-Get relevant knowledge from ChromaDB (RAG).
-Create prompting,include:
-    - System instructions
-    - Process context (from DB)
-    - RAG knowledge excerpts
-    - Conversation history (from memory)
-Call the LLM and return a structured response.
-Persist the turn to memory.
-"""
-
 from langchain.schema import SystemMessage, HumanMessage, AIMessage
 from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
 from sqlalchemy.orm import Session
-
 from app.config import settings
+
 from app.memory.chat_memory import get_memory, save_turn, get_history_messages
 from app.agent.tools import classify_process, lookup_process_db, rag_search
 from app.schemas.request_schema import ChatRequest, ChatResponse, ProcessInfo
@@ -63,7 +46,6 @@ Si la base de conocimientos no contiene información relevante, aplique las mejo
 
 
 def _build_llm():
-    """Create the LLM based on LLM_PROVIDER setting."""
     if settings.LLM_PROVIDER == "ollama":
         return ChatOllama(
             model=settings.LLM_MODEL,
@@ -80,20 +62,6 @@ def _build_llm():
 
 
 def run_agent(request: ChatRequest, db: Session) -> ChatResponse:
-    """
-    Main orchestration function by API route.
-
-    1.  Classify user intent → process_code
-    2.  Fetch DB metadata for that process
-    3.  Run RAG retrieval
-    4.  Build prompt (system + history + user message)
-    5.  Call LLM
-    6.  Save turn to memory
-    7.  Return ChatResponse
-
-    request : Pydantic ChatRequest
-    db : SQLAlchemy session
-    """
     user_text       = request.message.text
     conversation_id = request.conversation_id
     user_id         = request.user_id
@@ -116,7 +84,7 @@ def run_agent(request: ChatRequest, db: Session) -> ChatResponse:
 
     # Rag usage call 
     rag_context, sources = rag_search(user_text, process_code)
-    print(f"[Orchestrator] 📚  RAG sources: {sources or ['none']}")
+    print(f"[Orchestrator] RAG sources: {sources or ['none']}")
     system_content = SYSTEM_PROMPT_TEMPLATE.format(
         process_code             = process_code,
         process_name             = process_data["process_name"],
