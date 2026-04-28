@@ -1,11 +1,3 @@
-"""
-REST API
-
-POST /chat — Main orchestration endpoint
-POST /ingest — Trigger document ingestion into ChromaDB
-GET  /processes — List all functional processes from DB
-GET  /health — Health check
-"""
 import traceback
 import logging
 
@@ -30,14 +22,6 @@ router = APIRouter()
     tags=["Agent"],
 )
 async def chat( request: ChatRequest, db: Session = Depends(get_db),) -> ChatResponse:
-    """
-    Main endpoint. Accepts a structured user message and returns
-    an AI-generated response enriched with process metadata and RAG sources.
-
-    - Validates input against the ChatRequest schema.
-    - Routes to the orchestrator which handles classification, RAG, and LLM.
-    - Returns a ChatResponse with reply + process info + document sources.
-    """
     try:
         response = run_agent(request, db)
         return response
@@ -87,10 +71,6 @@ async def ingest():
     tags=["Database"],
 )
 async def list_processes(db: Session = Depends(get_db)):
-    """
-    Returns all rows from functional_process table.
-    Useful for verifying the seeded data or building a UI dropdown.
-    """
     rows = db.query(FunctionalProcess).all()
     return {"processes": [row.to_dict() for row in rows]}
 

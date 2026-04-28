@@ -1,19 +1,3 @@
-"""
-RAG Ingestion Pipeline
-
-LOAD     — Read raw documents from ./docs/ directory
-CHUNK    — Split into overlapping text windows
-EMBED    — Generate dense vectors via HuggingFace sentence-transformer
-STORE    — Persist to ChromaDB + register in SQL audit table
-
-Hardcoded RAG hyperparameters (from settings):
-    - CHUNK_SIZE      : 500 tokens
-    - CHUNK_OVERLAP   : 50  tokens
-    - EMBEDDING_MODEL : all-MiniLM-L6-v2  (384-dim vectors)
-    - TOP_K           : 4   (used at retrieval time, not here)
-    - Vector store    : ChromaDB (local, persistent)
-"""
-
 import os
 from datetime import datetime
 from pathlib import Path
@@ -27,11 +11,7 @@ from app.config import settings
 from app.db.database import SessionLocal
 from app.db.models import RagDocumentRegistry
 
-
-# ── Constants ─────────────────────────────────────────────────────────────────
 DOCS_DIR = Path("./docs")
-
-# Process keyword map — used to tag documents with process_code A–E
 PROCESS_KEYWORD_MAP = {
     "A": ["inquiry", "clarification", "question", "faq", "consulta", "aclaración"],
     "B": ["cancel", "cancellation", "product", "cancelar", "baja"],
@@ -42,31 +22,22 @@ PROCESS_KEYWORD_MAP = {
 
 
 def _detect_process_code(filename: str, text: str) -> str:
-    """
-    Heuristic: scan filename + first 400 chars of text for keywords.
-    Falls back to 'A' (general inquiry) if nothing matches.
-    """
-    probe = (filename + " " + text[:400]).lower()
+    tmp = (filename + " " + text[:400]).lower() # scan filename + first 400 chars for keywords
     for code, keywords in PROCESS_KEYWORD_MAP.items():
-        if any(kw in probe for kw in keywords):
+        if any(kw in tmp for kw in keywords):
             return code
     return "A"
 
 
 def _get_loader(file_path: Path):
-    """Return the appropriate LangChain loader based on file extension."""
     ext = file_path.suffix.lower()
     if ext == ".pdf":
         return PyPDFLoader(str(file_path))
-    # Default: plain text (also handles .txt, .md)
+    # else in txt file
     return TextLoader(str(file_path), encoding="utf-8")
 
 
 def _get_embeddings() -> HuggingFaceEmbeddings:
-    """
-    Instantiate the embedding model.
-    Estrategia de Busqueda: all-MiniLM-L6-v2 → 384-dimensional vectors, ~80 MB download, free.
-    """
     return HuggingFaceEmbeddings(
         model_name=settings.EMBEDDING_MODEL,
         model_kwargs={"device": "cpu"},
@@ -75,7 +46,6 @@ def _get_embeddings() -> HuggingFaceEmbeddings:
 
 
 def _get_vector_store(embeddings: HuggingFaceEmbeddings) -> Chroma:
-    """Open (or create) the persisted ChromaDB collection."""
     return Chroma(
         collection_name=settings.CHROMA_COLLECTION,
         embedding_function=embeddings,
@@ -84,12 +54,13 @@ def _get_vector_store(embeddings: HuggingFaceEmbeddings) -> Chroma:
 
 
 def ingest_document(file_path: Path) -> dict:
-    """
-    Run the full ingestion pipeline for a single file.
+    # RAG Ingestion
+    # LOAD - Read ./docs/
+    # EMBED - HuggingFace for vectiruing
+    # STORE - Persist to ChromaDB + register in SQL audit table
 
-    ret: dict + chunk_count and process_code.
-    """
-    print(f"[RAG Loader] 📄  Processing: {file_path.name}")
+    # ingest documents to chroma db
+    print(f"Processing: {file_path.name}")
 
     loader = _get_loader(file_path)
     raw_docs = loader.load()
@@ -110,9 +81,7 @@ def ingest_document(file_path: Path) -> dict:
         chunk.metadata["process_code"] = process_code
         chunk.metadata["ingested_at"]  = datetime.utcnow().isoformat()
 
-    print(f"[RAG Loader] ✂️   {len(chunks)} chunks created (size={settings.CHUNK_SIZE}, overlap={settings.CHUNK_OVERLAP})")
-
-    # ── Stage 3: EMBED + Stage 4: STORE ──────────────────────────────────────
+    print(f"{len(chunks)} chunks created (size={settings.CHUNK_SIZE}, overlap={settings.CHUNK_OVERLAP})")
     embeddings    = _get_embeddings()
     vector_store  = _get_vector_store(embeddings)
     vector_store.add_documents(chunks)
@@ -144,18 +113,15 @@ def ingest_document(file_path: Path) -> dict:
 
 
 def ingest_all_documents() -> list[dict]:
-    """
-    Scan ./docs/ and ingest every .txt and .pdf found.
-    """
     # creates if not already created
     if not DOCS_DIR.exists():
         DOCS_DIR.mkdir(parents=True)
-        print(f"[RAG Loader] ⚠️  Created empty docs/ directory. Add .txt or .pdf files there.")
+        print(f"Created empty docs/ directory. Add .txt or .pdf files there.")
         return []
 
     files = list(DOCS_DIR.glob("*.txt")) + list(DOCS_DIR.glob("*.pdf"))
     if not files:
-        print("[RAG Loader] ⚠️  No documents found in docs/. RAG will use empty knowledge base.")
+        print("No documents found in docs/. RAG will use empty knowledge base.")
         return []
 
     results = []
@@ -163,7 +129,7 @@ def ingest_all_documents() -> list[dict]:
         try:
             results.append(ingest_document(f))
         except Exception as e:
-            print(f"[RAG Loader] ❌  Failed on {f.name}: {e}")
+            print(f"Failed on {f.name}: {e}")
 
-    print(f"[RAG Loader] ✅  Ingestion complete. {len(results)} document(s) processed.")
+    print(f"Ingestion complete. {len(results)} document(s) processed.")
     return results
