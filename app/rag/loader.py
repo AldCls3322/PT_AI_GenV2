@@ -53,6 +53,52 @@ def _get_vector_store(embeddings: HuggingFaceEmbeddings) -> Chroma:
     )
 
 
+def _already_in_chromadb(filename: str) -> bool:
+    # there is a reingestion issue when launching app. Need to avoid this
+    try:
+        embeddings   = _get_embeddings()
+        vector_store = _get_vector_store(embeddings)
+ 
+        # get() with a where filter returns matching documents without
+        # performing a vector search — it's a metadata-only lookup.
+        result = vector_store._collection.get(
+            where={"source": filename},
+            limit=1,
+        )
+        return len(result["ids"]) > 0
+    except Exception:
+        # If ChromaDB collection doesn't exist yet, treat as not ingested
+        return False
+
+# for secod check
+def _already_in_registry(filename: str) -> bool:
+    db = SessionLocal()
+    try:
+        return db.query(RagDocumentRegistry).filter_by(
+            document_name=filename
+        ).first() is not None
+    finally:
+        db.close()
+ 
+ 
+def _register_in_sql(file_path: Path, process_code: str, chunk_count: int) -> None:
+    db = SessionLocal()
+    try:
+        # Avoid duplicate SQL rows if ChromaDB was the source of truth
+        if not _already_in_registry(file_path.name):
+            db.add(RagDocumentRegistry(
+                process_code    = process_code,
+                document_name   = file_path.name,
+                chunk_count     = chunk_count,
+                embedding_model = settings.EMBEDDING_MODEL,
+                chunk_size      = settings.CHUNK_SIZE,
+                chunk_overlap   = settings.CHUNK_OVERLAP,
+                notes           = f"Auto-detected process: {process_code}",
+            ))
+            db.commit()
+    finally:
+        db.close()  
+
 def ingest_document(file_path: Path) -> dict:
     # RAG Ingestion
     # LOAD - Read ./docs/
@@ -86,7 +132,7 @@ def ingest_document(file_path: Path) -> dict:
     vector_store  = _get_vector_store(embeddings)
     vector_store.add_documents(chunks)
 
-    print(f"[RAG Loader] 💾  Stored in ChromaDB collection '{settings.CHROMA_COLLECTION}'")
+    print(f"Stored in ChromaDB collection '{settings.CHROMA_COLLECTION}'")
 
     # Guardar en SQL db
     db = SessionLocal()
@@ -123,9 +169,29 @@ def ingest_all_documents() -> list[dict]:
     if not files:
         print("No documents found in docs/. RAG will use empty knowledge base.")
         return []
+    
+    print(f"Documents found in docs/ : {len(files)}")
+    for f in files:
+        in_chroma   = _already_in_chromadb(f.name)
+        in_registry = _already_in_registry(f.name)
+        status = "✓ indexed" if in_chroma else "✗ pending"
+        sync   = "" if in_chroma == in_registry else " ⚠ SQL out of sync"
+        print(f"[RAG Loader]   {status}  {f.name}{sync}")
+    print(f"[RAG Loader] {'─'*50}\n")
 
     results = []
+    skipped = 0
+
     for f in files:
+        if _already_in_chromadb(f.name):
+            skipped += 1
+            if not _already_in_registry(f.name):
+                print(f"[RAG Loader] 🔧  Fixing SQL registry for: {f.name}")
+                raw = _get_loader(f).load()
+                code = _detect_process_code(f.name, raw[0].page_content if raw else "")
+                _register_in_sql(f, code, 0)
+            continue
+ 
         try:
             results.append(ingest_document(f))
         except Exception as e:
