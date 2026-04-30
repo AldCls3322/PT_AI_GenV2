@@ -22,41 +22,61 @@ def _get_vector_store() -> Chroma:
     )
 
 
-def retrieve(query: str, process_code: str | None = None) -> list[Document]:
-    vector_store = _get_vector_store()
-
-    # Build optional where-filter for ChromaDB
-    where_filter = {"process_code": process_code} if process_code else None
-
+def retrieve_with_scores(query: str) -> list[tuple[Document, float]]:
     try:
-        if where_filter:
-            docs = vector_store.similarity_search(
-                query,
-                k=settings.TOP_K,
-                filter=where_filter,
-            )
-        else:
-            docs = vector_store.similarity_search(query, k=settings.TOP_K)
-    except Exception:
-        docs = []
+        vector_store = _get_vector_store()
 
-    return docs
+        # Embedded model
+        results = vector_store.similarity_search_with_score(
+            query,
+            k=settings.TOP_K,
+        )
+        # similarity_search_with_score returns (doc, distance)
+        # Lower distance = more similar. Sort ascending to get best first.
+        results.sort(key=lambda x: x[1])
+        return results
+    except Exception as e:
+        print(f"[Retriever] ChromaDB query failed: {e}")
+        return []
 
 
-def retrieve_as_context(query: str, process_code: str | None = None) -> tuple[str, list[str]]:
+def retrieve_as_context(query: str) -> tuple[str, list[str], bool]:
     # Wraps ChromaDB with a LangChain retriever interface.
-    docs = retrieve(query, process_code)
-
-    if not docs:
-        return "No relevant information found in the knowledge base.", []
-
+    raw_results = retrieve_with_scores(query)
+ 
+    if not raw_results:
+        print("No chunks returned from ChromaDB.")
+        return "", [], False
+ 
+    # Filter by relevance threshold
+    threshold = settings.RAG_SCORE_THRESHOLD
+    relevant = []
+    for doc, score in raw_results:
+        if score <= threshold:
+            #add result
+            relevant.append((doc, score))
+    discarded = len(raw_results) - len(relevant)
+ 
+    print(f"{len(raw_results)} chunks retrieved | "
+          f"{len(relevant)} passed threshold ({threshold}) | "
+          f"{discarded} discarded")
+ 
+    if not relevant:
+        print("All chunks below relevance threshold — RAG not used.")
+        return "", [], False
+ 
     context_parts = []
     sources = []
-    for i, doc in enumerate(docs, 1):
-        source = doc.metadata.get("source", "unknown")
-        context_parts.append(f"[Excerpt {i} — {source}]\n{doc.page_content}")
+ 
+    for i, (doc, score) in enumerate(relevant, 1):
+        source       = doc.metadata.get("source", "unknown")
+        process_code = doc.metadata.get("process_code", "?")
+        context_parts.append(
+            f"[Excerpt {i} | source: {source} | process: {process_code} | score: {score:.3f}]\n"
+            f"{doc.page_content}"
+        )
         if source not in sources:
             sources.append(source)
-
-    context = "\n\n---\n\n".join(context_parts)
-    return context, sources
+ 
+    context_text = "\n\n---\n\n".join(context_parts)
+    return context_text, sources, True
