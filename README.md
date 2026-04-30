@@ -182,13 +182,51 @@ Se uso **Cosine Similarity** como estrategia de búsqueda vectorial, implementad
 3. Reinicia el servidor o llama a `POST /api/v1/ingest`
 4. Los documentos ya procesados se omiten automáticamente (deduplicación por nombre de archivo)
 
-## 🗄️ Base de Datos
+## Base de Datos
 
 El proyecto usa **SQLite** (archivo `banorte.db`) para desarrollo. Si se quiere evolucionar de MVP se puede migrar a PostgreSQL cambiando `DATABASE_URL` en `.env`.
-
 
 ---
 
 ## Memoria de Conversación
 
 Mantiene memoria por sesion. Implementado en `app/memory/chat_memory.py` usando LangChain `InMemoryChatMessageHistory`.
+
+---
+
+## Docker
+
+To prepare and run docker
+
+```
+# ── Cambios en código Python (.py) ───────────────────────────────────────────
+docker compose down
+docker compose up --build
+
+# ── Cambios en .env ───────────────────────────────────────────────────────────
+docker compose down
+docker compose up
+
+# ── Cambios en requirements.txt ───────────────────────────────────────────────
+docker compose up --build
+
+# ── Agregar documento a docs\ ─────────────────────────────────────────────────
+# (con el contenedor corriendo)
+copy nuevo_doc.pdf .\docs\
+curl -X POST http://localhost:8000/api/v1/ingest
+
+# ── Cambio de EMBEDDING_MODEL ────────────────────────────────────────────────
+docker compose down
+docker volume rm banorte-assistant_chroma-data
+docker compose up --build
+
+# ── Ver logs en tiempo real ───────────────────────────────────────────────────
+docker compose logs -f banorte-api
+
+# ── Detener conservando datos ─────────────────────────────────────────────────
+docker compose down
+
+# ── Detener y borrar todo (reset completo) ────────────────────────────────────
+```
+---
+docker compose down -v
