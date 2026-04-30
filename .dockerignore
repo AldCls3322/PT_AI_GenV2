@@ -1,0 +1,34 @@
+rag_pt_ai/
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# avoid upload of secret key
+.env
+
+chroma_store/
+banorte.db
+*.db
+*.db-shm
+*.db-wal
+
+# HuggingFace models - not suggested they are big files
+.cache/
+
+# git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# README
+README.md
+.editorconfig

@@ -31,14 +31,68 @@ if ROOT_DIR not in sys.path:
 # ── Launch uvicorn ─────────────────────────────────────────────────────────────
 import uvicorn
 
-if __name__ == "__main__":
-    is_prod = "--prod" in sys.argv
-
-    uvicorn.run(
-        "app.main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=not is_prod,          # Hot-reload in dev, off in prod
-        workers=4 if is_prod else 1, # Multi-worker only in prod
-        log_level="info",
+def _is_docker() -> bool:
+    """
+    Detecta si el proceso corre dentro de un contenedor Docker.
+    Usa dos señales independientes para mayor robustez:
+      1. /.dockerenv — archivo creado por Docker en cada contenedor
+      2. Variable de entorno DOCKER_CONTAINER=true — puede setearse
+         manualmente en docker-compose.yml si la primera falla
+    """
+    return (
+        os.path.exists("/.dockerenv")
+        or os.environ.get("DOCKER_CONTAINER", "false").lower() == "true"
     )
+ 
+ 
+def _resolve_config() -> dict:
+    """
+    Determina la configuración de uvicorn según el entorno detectado.
+    Retorna un dict listo para pasar a uvicorn.run().
+    """
+    in_docker = _is_docker()
+    is_prod   = (
+        "--prod" in sys.argv
+        or os.environ.get("APP_ENV", "development").lower() == "production"
+    )
+ 
+    # --reload solo tiene sentido en desarrollo local fuera de Docker
+    use_reload = not is_prod and not in_docker
+ 
+    # Múltiples workers solo en producción
+    # IMPORTANTE: con workers > 1 la memoria de conversación (en RAM)
+    # NO se comparte entre workers. Para producción real usar Redis.
+    workers = 4 if is_prod else 1
+ 
+    # Puerto: lee APP_PORT del entorno (docker-compose lo puede sobreescribir)
+    port = int(os.environ.get("APP_PORT", 8000))
+ 
+    return {
+        "app":       "app.main:app",
+        "host":      "0.0.0.0",
+        "port":      port,
+        "reload":    use_reload,
+        "workers":   workers,
+        "log_level": "info",
+    }
+ 
+ 
+if __name__ == "__main__":
+    config    = _resolve_config()
+    in_docker = _is_docker()
+    is_prod   = os.environ.get("APP_ENV", "development").lower() == "production"
+ 
+    # ── Banner de arranque ────────────────────────────────────────────────────
+    print()
+    print("=" * 55)
+    print("  Banorte Assistant — Iniciando")
+    print("=" * 55)
+    print(f"  Entorno  : {'producción' if is_prod else 'desarrollo'}")
+    print(f"  Docker   : {'sí' if in_docker else 'no'}")
+    print(f"  Host     : 0.0.0.0:{config['port']}")
+    print(f"  Workers  : {config['workers']}")
+    print(f"  Reload   : {'activado' if config['reload'] else 'desactivado'}")
+    print("=" * 55)
+    print()
+ 
+    uvicorn.run(**config)
