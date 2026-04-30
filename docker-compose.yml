@@ -1,21 +1,6 @@
-# =============================================================================
-# Banorte Assistant — Docker Compose
-# =============================================================================
-# Servicios definidos:
-#   banorte-api   — La aplicación FastAPI principal
-#
-# Uso:
-#   Desarrollo  : docker compose up --build
-#   Producción  : docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-#
-# Variables de entorno:
-#   Todas se leen del archivo .env en la raíz del proyecto.
-#   Ver .env.example para referencia completa.
-# =============================================================================
-
 services:
 
-  # ── Aplicación principal ───────────────────────────────────────────────────
+  # MAIN
   banorte-api:
     build:
       context: .
@@ -25,59 +10,50 @@ services:
 
     container_name: banorte-assistant
 
-    # ── Variables de entorno ─────────────────────────────────────────────────
-    # Primero carga el archivo .env (valores base),
-    # luego permite sobreescribir con variables del entorno del host.
+    # ENV VARIABLES
     env_file:
       - .env
     environment:
-      # ── LLM ────────────────────────────────────────────────────────────────
-      # Estas variables sobreescriben lo que esté en .env si están definidas
-      # en el entorno del host (útil para CI/CD y Kubernetes)
+      # LLM
       LLM_PROVIDER: ${LLM_PROVIDER:-openai}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       LLM_MODEL: ${LLM_MODEL:-gpt-4o}
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
 
-      # ── RAG / ChromaDB ─────────────────────────────────────────────────────
+      # RAG ChromaDB 
       CHROMA_PERSIST_DIR: /app/chroma_store
       CHROMA_COLLECTION: ${CHROMA_COLLECTION:-banorte_docs}
       CHUNK_SIZE: ${CHUNK_SIZE:-500}
       CHUNK_OVERLAP: ${CHUNK_OVERLAP:-50}
-      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-all-MiniLM-L6-v2}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-paraphrase-multilingual-MiniLM-L12-v2}
       TOP_K: ${TOP_K:-4}
+      RAG_SCORE_THRESHOLD: ${RAG_SCORE_THRESHOLD:-1.0}
 
-      # ── Base de datos ───────────────────────────────────────────────────────
-      # La DB vive en el volumen 'banorte-data' para persistencia
+      # db
       DATABASE_URL: sqlite:////app/data/banorte.db
 
-      # ── Silenciar warnings no críticos ─────────────────────────────────────
+      # When running run py, some wraning show for the package version, it can be muted:
       ANONYMIZED_TELEMETRY: "False"
       HF_HUB_DISABLE_SYMLINKS_WARNING: "1"
       HF_HOME: /app/.cache/huggingface
       TRANSFORMERS_CACHE: /app/.cache/huggingface
 
     ports:
-      # HOST_PORT:CONTAINER_PORT
-      # Cambia el HOST_PORT si el 8000 está ocupado en tu máquina
       - "${APP_PORT:-8000}:8000"
 
-    # ── Volúmenes persistentes ───────────────────────────────────────────────
-    # Los datos sobreviven docker compose down (se borran con down -v)
+    # Avoid loosing db
     volumes:
       # ChromaDB — vectores y embeddings
       - chroma-data:/app/chroma_store
       # SQLite — base de datos relacional
       - banorte-data:/app/data
-      # Caché de modelos HuggingFace — evita re-descargar en cada build
+      # modelos HuggingFace
       - hf-cache:/app/.cache/huggingface
-      # Documentos RAG — mount del directorio local para agregar docs sin rebuild
+      # Documentos RAG
       - ./docs:/app/docs:ro
 
-    # ── Política de reinicio ─────────────────────────────────────────────────
     restart: unless-stopped
 
-    # ── Health check ─────────────────────────────────────────────────────────
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
       interval: 30s
@@ -85,7 +61,6 @@ services:
       retries: 3
       start_period: 60s
 
-    # ── Límites de recursos (opcional, descomentar para producción) ───────────
     # deploy:
     #   resources:
     #     limits:
@@ -95,19 +70,13 @@ services:
     #       cpus: '0.5'
     #       memory: 1G
 
-    # ── Logging ──────────────────────────────────────────────────────────────
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
 
-
-# =============================================================================
-# Volúmenes nombrados
-# Docker gestiona estos directorios fuera del proyecto.
-# Inspeccionables con: docker volume inspect banorte-assistant_chroma-data
-# =============================================================================
+# volumenes db para no perderlos al reiniciar el contenedor
 volumes:
   chroma-data:
     name: banorte-assistant_chroma-data
